@@ -1,0 +1,62 @@
+﻿@inject MarkdigParser markdig
+@inject IJSRuntime js
+
+<div class="col-6">
+    <div class="col-12 mb-1" style="border:solid 1px #000; border-radius:0.25rem;">
+
+        <button class="btn oi oi-bold" />
+
+            action buttons go here
+    </div>
+    <textarea id="@id" @bind-value="@markdownText" @bind-value:event="oninput" class="form-control" style="height:10rem;" />
+</div>
+<div class="col-6" style="border:solid 1px #aaa; border-radius:0.25rem;">
+    @htmlOutput
+</div>
+
+@code
+{
+    private string id = $"me_{Guid.NewGuid()}";
+
+    private DotNetObjectReference<MarkdigEditor> dotNetReference;
+
+    // what the user types..
+    private string _markdownText = null;
+    private string markdownText
+    {
+        get => _markdownText;
+        set
+        {
+            _markdownText = value;
+            this.updateGeneratedMarkup();
+        }
+    }
+
+    // what we generate from provided markdownText when ever there's a key event.
+    private MarkupString htmlOutput = new MarkupString();
+
+    private void updateGeneratedMarkup()
+    {
+        // we'll just try and go live with it, as Blazor is running in WebAssembly.  It'll be the browser having a hard time re-drawing all the time.
+        this.htmlOutput = new MarkupString(markdig.ToHtml(this.markdownText ?? ""));
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if(firstRender)
+        {
+            this.dotNetReference = DotNetObjectReference.Create<MarkdigEditor>(this);
+            this.js.InvokeVoidAsync("markdigEditor.register", dotNetReference, this.id);
+        }
+    }
+
+    private int currentCaretPosition;
+
+    [JSInvokable("updateCursorPos")]
+    public void UpdateOfCursorPosition(double? selectionStart)
+    {
+        // store cursor position, so if user clicks on a button, we know where to inject the template markup for that action.
+        this.currentCaretPosition = (int)(selectionStart ?? 0);
+    }
+}
