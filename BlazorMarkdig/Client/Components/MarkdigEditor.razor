@@ -4,9 +4,7 @@
 <div class="col-6">
     <div class="col-12 mb-1" style="border:solid 1px #000; border-radius:0.25rem;">
 
-        <button class="btn oi oi-bold" />
-
-            action buttons go here
+        <button class="me-btn oi oi-bold" @onclick="@onBoldButtonClickedAsync" />
     </div>
     <textarea id="@id" @bind-value="@markdownText" @bind-value:event="oninput" class="form-control" style="height:10rem;" />
 </div>
@@ -58,5 +56,14 @@
     {
         // store cursor position, so if user clicks on a button, we know where to inject the template markup for that action.
         this.currentCaretPosition = (int)(selectionStart ?? 0);
+    }
+
+    private async Task onBoldButtonClickedAsync()
+    {
+        // we know where to inject: this.currentCaretPosition
+
+        var template = "**bold**";
+        await js.InvokeVoidAsync("markdigEditor.insertTemplate", this.currentCaretPosition, template);
+        this.currentCaretPosition += template.Length;
     }
 }

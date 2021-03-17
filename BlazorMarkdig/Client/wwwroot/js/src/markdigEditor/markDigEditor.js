@@ -1,9 +1,7 @@
 var markdigEditor = /** @class */ (function () {
     function markdigEditor() {
     }
-    // maybe this shouold be more like a factory?  So everything can be relative?
     markdigEditor.register = function (dotNetObj, id) {
-        debugger;
         var _this = markdigEditor;
         _this.dotNetObj = dotNetObj;
         _this.id = id;
@@ -11,10 +9,20 @@ var markdigEditor = /** @class */ (function () {
         _this.textAreaElement.addEventListener('input', _this.onInputHandler);
     };
     markdigEditor.onInputHandler = function (e) {
-        //debugger;
         var _this = markdigEditor;
         var pos = _this.textAreaElement.selectionStart;
         _this.dotNetObj.invokeMethodAsync('updateCursorPos', pos);
+    };
+    markdigEditor.insertTemplate = function (caretPosition, template) {
+        var _this = markdigEditor;
+        var currentText = _this.textAreaElement.value;
+        var beforeInsertText = currentText.slice(0, caretPosition);
+        var afterInsertText = currentText.slice(caretPosition);
+        _this.textAreaElement.value = "" + beforeInsertText + template + afterInsertText;
+        caretPosition += template.length; // until we inject an offset
+        _this.textAreaElement.selectionStart = caretPosition;
+        _this.textAreaElement.selectionEnd = caretPosition;
+        _this.textAreaElement.focus();
     };
     return markdigEditor;
 }());
