@@ -3,8 +3,20 @@
 
 <div class="col-6">
     <div class="col-12 mb-1" style="border:solid 1px #000; border-radius:0.25rem;">
+        <CascadingValue Value="@this">
 
-        <button class="me-btn oi oi-bold" @onclick="@onBoldButtonClickedAsync" />
+            <ActionButton Class="oi-bold" Title="bold" Template="****" Offset="2" />
+            <ActionButton Class="oi-italic" Title="italic" Template="**" Offset="1" />
+            &nbsp;
+            <ActionButton Class="oi-header" Style="font-size:1rem;" Title="Heading 1" Template="\r\n# " Offset="4" />
+            <ActionButton Class="oi-header" Style="font-size:0.8rem;" Title="Heading 2" Template="\r\n## " Offset="5" />
+            <ActionButton Class="oi-header" Style="font-size:0.6rem;" Title="Heading 3" Template="\r\n### " Offset="6" />
+            &nbsp;
+
+            @* left this in 'raw' to allow you to compare with the component usage above. *@
+            <button class="me-btn oi oi-link-intact" title="Link url" @onclick="@(()=> this.PasteTemplate("\r\n[text](http://)", caretOffset:1))" />
+
+        </CascadingValue>
     </div>
     <textarea id="@id" @bind-value="@markdownText" @bind-value:event="oninput" class="form-control" style="height:10rem;" />
 </div>
@@ -42,7 +54,7 @@
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
-        if(firstRender)
+        if (firstRender)
         {
             this.dotNetReference = DotNetObjectReference.Create<MarkdigEditor>(this);
             this.js.InvokeVoidAsync("markdigEditor.register", dotNetReference, this.id);
@@ -58,12 +70,9 @@
         this.currentCaretPosition = (int)(selectionStart ?? 0);
     }
 
-    private async Task onBoldButtonClickedAsync()
+    internal async Task PasteTemplate(string template, int caretOffset)
     {
-        // we know where to inject: this.currentCaretPosition
-
-        var template = "**bold**";
-        await js.InvokeVoidAsync("markdigEditor.insertTemplate", this.currentCaretPosition, template);
-        this.currentCaretPosition += template.Length;
+        await js.InvokeVoidAsync("markdigEditor.insertTemplate", this.currentCaretPosition, template, caretOffset);
+        this.currentCaretPosition += caretOffset;
     }
 }

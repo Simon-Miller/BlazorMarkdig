@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorMarkdig.Server", "BlazorMarkdig\Server\BlazorMarkdig.Server.csproj", "{B23F865C-2BA9-4522-852C-59B20E50BE45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorMarkdig.Server", "BlazorMarkdig\Server\BlazorMarkdig.Server.csproj", "{B23F865C-2BA9-4522-852C-59B20E50BE45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorMarkdig.Client", "BlazorMarkdig\Client\BlazorMarkdig.Client.csproj", "{B2460F4C-C309-4019-85F7-98FD2DF109C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorMarkdig.Client", "BlazorMarkdig\Client\BlazorMarkdig.Client.csproj", "{B2460F4C-C309-4019-85F7-98FD2DF109C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorMarkdig.Shared", "BlazorMarkdig\Shared\BlazorMarkdig.Shared.csproj", "{EF8D1CDA-E53D-4303-A7A9-507AE154EEA8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorMarkdig.Shared", "BlazorMarkdig\Shared\BlazorMarkdig.Shared.csproj", "{EF8D1CDA-E53D-4303-A7A9-507AE154EEA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

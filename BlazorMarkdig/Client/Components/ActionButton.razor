@@ -1,0 +1,34 @@
+﻿<button class="me-btn oi @Class" style="@Style" title="@Title" @onclick="@( async () => this.onClickAsync() )" />
+
+@code 
+{
+    /// <summary>
+    /// By requiring this to be cascaded in, we also guarantee this component can only used
+    /// inside of the MarkDigEditor component
+    /// </summary>
+    [CascadingParameter] public MarkdigEditor Parent { get; set; }
+
+    [Parameter] public string Class { get; set; }
+    [Parameter] public string Style { get; set; }
+
+    [Parameter] public string Title { get; set; }
+
+    /// <summary>
+    /// paste text - markup template
+    /// </summary>
+    [Parameter] public string Template { get; set; }
+
+    /// <summary>
+    /// offset number of characters into the template where the text caret should be positioned after pasting the template.
+    /// </summary>
+    [Parameter] public int Offset { get; set; }
+
+    private async void onClickAsync()
+    {
+        // Blazor components by default make any text passed as a parameter 'safe'.
+        // in our case, we want to pass literal escaped characters such as \r\n for pasting in to textarea.
+        var unescaped = System.Text.RegularExpressions.Regex.Unescape(this.Template);
+
+        await this.Parent.PasteTemplate(unescaped, this.Offset);
+    }
+}
