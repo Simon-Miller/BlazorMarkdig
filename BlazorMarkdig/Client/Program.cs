@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace BlazorMarkdig.Client
 {
@@ -26,21 +27,28 @@ namespace BlazorMarkdig.Client
 
         public static void ConfigureServices(WebAssemblyHostBuilder builder, IServiceCollection services)
         {
-            services.AddSingleton(provider =>
-            {
-                var config = provider.GetService<IConfiguration>();
-                return config.GetSection("App").Get<IConfiguration>();
-            });
+            //services.AddSingleton(provider =>
+            //{
+            //    var config = provider.GetService<IConfiguration>();
+            //    return config.GetSection("App").Get<IConfiguration>();
+            //});
 
-            services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            // the HTTP Client within webAssembly points back to Blazor server ??
+            //services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             services.AddSingleton<MarkdigParser>();
 
-            services.AddTransient((serv) =>
-            {
-                var uri = serv.GetService<IConfiguration>().GetValue<string>("MyOverflowUri");
-                return new MyOverflowProxy(uri);
-            });
+            //services.AddHttpClient<IMyOverflowProxy, MyOverflowProxy>(Client =>)
+
+
+
+
+            //services.AddScoped((serv) =>
+            //{
+            //    //var uri = serv.GetService<IConfiguration>().GetValue<string>("MyOverflowUri");
+
+            //    return new MyOverflowProxy("https://localhost:44394/");
+            //});
         }
     }
 }

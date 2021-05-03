@@ -2,7 +2,9 @@
 using BlazorMarkdig.Shared.Proxies;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MyOverflow.Api.Controllers
 {
@@ -11,7 +13,7 @@ namespace MyOverflow.Api.Controllers
         private static List<ImageFile> filesStore = new();
 
         // GOTCHA!!  Does support wild card.  So "ab/cd/ef.jpg" will work. 
-        [Route("MyOverflow/GetFile/{*identifier}", Name = "default")]
+        [Route("MyOverflow/GetFile/{*identifier}")]
         [HttpGet]
         public ActionResult GetFile(string identifier)
         {
@@ -28,15 +30,39 @@ namespace MyOverflow.Api.Controllers
         }
 
         /// <summary>
-        /// Note that as a HTTP protocol handler, I can't expect a non-json serializable type to work, therefore I need a byte[].
+        /// As we're not base64 encoding our data, we can't pretend JSON serialization will work at all.
+        /// So it seems the best approach I can find is to consider the content of the posted form (body) to be binary,
+        /// and extract that out.  Given it is a stream, we could support that directly in ImageFile for improvements!
         /// </summary>
+        [Route("MyOverflow/StoreFile")]
         [HttpPost]
-        public ActionResult StoreFile(byte[] imageFileBytes)
+        public ActionResult StoreFile()
         {
-            var file = ImageFile.Deserialize(imageFileBytes);
+            using (var ms = new MemoryStream((int)Request.ContentLength))
+            {
+                //await Request.Body.CopyToAsync(ms);
 
-            filesStore.Add(file);
-            return new OkResult();
+
+
+                var imageFile = ImageFile.Deserialize(Request.BodyReader.AsStream());
+
+                filesStore.Add(imageFile);
+                return new OkResult();
+            }
+        }
+
+        [Route("MyOverflow/StoreImageFile")]
+        [HttpPost]
+        public ActionResult StoreImageFile([FromBody] ImageFile data) // FromBody is needed to instruct model binding
+        {
+            if (data != null)
+            {
+                // how do you get across the message that this is a static property?
+                MyOverflowController.filesStore.Add(data);
+                return new OkResult();
+            }
+
+            return new StatusCodeResult(Microsoft.AspNetCore.Http.StatusCodes.Status500InternalServerError);
         }
 
 

@@ -1,0 +1,119 @@
+﻿@using BlazorMarkdig.Shared
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+
+
+@* javascript call to click the InputFile component with matching id.
+    Note that we use CSS to prevent thr poiner event on the InputFile itself, so it falls through to this DIV.
+    Why?  So the click event is triggered by the image, OR the InputFile.  Not by the InputFile, AND THEN by the DIV,
+    thus preventing the click event triggering twice. *@
+<div class="d-inline me-btn cursor-pointer" style="padding:0.4rem;"
+     onclick="document.getElementById(@($"'{id}'")).click()">
+
+    <InputFile id="@id" class="oi oi-file cursor-pointer" style="width:1rem; pointer-events: none;" title="image"
+               OnChange="@onFileSelected" />
+</div>
+
+@code
+{
+    private string id = $"inputFile_{Guid.NewGuid()}";
+
+    /// <summary>
+    /// By requiring this to be cascaded in, we also guarantee this component
+    /// can only be used inside the MarkDigEditor component
+    /// </summary>
+    [CascadingParameter] public MarkdigEditor Parent { get; set; }
+
+    private void onFileSelected(BlazorInputFile.IFileListEntry[] files)
+    {
+        try
+        {
+            // we should get this value from config.
+            var MAX = 10000000;
+
+            var e = files.First();
+
+            // idiot check the sile size to upload?
+            if (e.Size > MAX)
+            {
+            }
+
+            Task.Run(async () =>
+            {
+                var imageBuffer = new byte[e.Size];
+
+                using (var memStream = await e.ReadAllAsync(MAX))
+                {
+                    using (SixLabors.ImageSharp.Image image = SixLabors.ImageSharp.Image.Load(memStream))
+                    {
+                        var imageData = new BlazorMarkdig.Shared.Models.ImageFile()
+                        {
+                            FileName = e.Name,
+                            Extension = e.Name.Substring(0, e.Name.LastIndexOf('.')),
+                            MimeType = e.Type,
+                            RawData = memStream.GetBuffer(),
+                            Width = image.Width,
+                            Height = image.Height
+                        };
+
+                        try
+                        {
+                            await this.SendImageFile(imageData);
+
+                            var encodedFileName = System.Uri.EscapeUriString(imageData.FileName);
+
+                            var template = $"\r\n![image](https://localhost:44394/MyOverflow/GetFile/{encodedFileName})";
+                            var unescaped = System.Text.RegularExpressions.Regex.Unescape(template);
+
+                            await Parent.PasteTemplate(template, unescaped.Length - 1);
+                        }
+                        catch (Exception ex)
+                        {
+                            var x = ex.Message;
+                            var st = ex.StackTrace;
+                        }
+                    }
+                }
+            });
+        }
+        catch (NotSupportedException ex)
+        {
+            // not a common image file format, and could not be loaded.
+        }
+        catch (Exception ex)
+        {
+            // what went wrong?
+
+            //Too big?
+
+            var rx = new System.Text.RegularExpressions.Regex(@"^Supplied file with size (\d+)? bytes exceeds the maximum of (\d+)? bytes.$");
+
+            var match = rx.Match(ex.Message);
+            if (match.Success)
+            {
+                var fileSize = match.Groups[1].Value;
+                var maxSize = match.Groups[2].Value;
+            }
+
+        }
+    }
+
+    HubConnection hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/chatHub")) // NOTE: This is setup in the server-side startup in endpoint configurations.
+            .Build();
+
+        await hubConnection.StartAsync();
+    }
+
+    Task Send(byte[] data) => hubConnection.SendAsync("StoreFile", data);
+
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+
+    public Task SendImageFile(BlazorMarkdig.Shared.Models.ImageFile data) => hubConnection.SendAsync("StoreImageFile", data);
+    
+}

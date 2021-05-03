@@ -6,26 +6,32 @@ using System.Threading.Tasks;
 
 namespace BlazorMarkdig.Shared.Proxies
 {
-    public class MyOverflowProxy
+    public interface IMyOverflowProxy
     {
-        public MyOverflowProxy(string uri)
+        Task<Stream> GetFileAsync(string identifier);
+        Task<bool> StoreFileAsync(ImageFile file);
+    }
+
+    public class MyOverflowProxy : IMyOverflowProxy
+    {
+        public MyOverflowProxy(HttpClient httpClient)
         {
-            this.uri = new Uri(uri);
+            this.httpClient = httpClient;
         }
 
-        private readonly Uri uri;
-        private static readonly HttpClient client = new HttpClient();
+        private readonly HttpClient httpClient = new HttpClient();
 
         public async Task<Stream> GetFileAsync(string identifier)
         {
-            return await client.GetStreamAsync($"{uri}/MyOverflow/GetFile/{identifier}");
+            return await httpClient.GetStreamAsync($"/MyOverflow/GetFile/{identifier}");
         }
 
         public async Task<bool> StoreFileAsync(ImageFile file)
         {
             var content = new ByteArrayContent(file.Serialize());
 
-            var response = await client.PostAsync($"{uri}/MyOverflow/StoreFile", content);
+            // Close, but no cigar!  This is perhaps where we need Postman to observe it.
+            var response = await httpClient.PostAsync("/MyOverflow/StoreFile", content);
 
             return (response.IsSuccessStatusCode);
         }

@@ -1,8 +1,10 @@
+using BlazorMarkdig.Server.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Net.Http;
 
 namespace BlazorMarkdig.Server
 {
@@ -19,8 +21,16 @@ namespace BlazorMarkdig.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews(); // registers our "proxy" api to the real MyOverflow.Api
             services.AddRazorPages();
+
+            // for the server-side MyOverflowProxy controller to access the 'real' one.
+            //services.AddScoped(sp => new HttpClient
+            //{
+            //    BaseAddress = new System.Uri("https://localhost:44394/")
+            //});
+
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,10 +54,13 @@ namespace BlazorMarkdig.Server
 
             app.UseRouting();
 
+
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/chatHub");
                 endpoints.MapFallbackToFile("index.html");
             });
         }

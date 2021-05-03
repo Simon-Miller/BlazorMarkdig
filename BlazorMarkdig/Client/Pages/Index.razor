@@ -1,4 +1,8 @@
-﻿@page "/"
+﻿@using Microsoft.AspNetCore.SignalR.Client
+@page "/"
+
+@inject NavigationManager NavigationManager
+
 
 <h1>Hello, world!</h1>
 
@@ -10,3 +14,53 @@ Welcome to your new app.
 <div class="row">
     <MarkdigEditor />
 </div>
+
+@* ---------------------------------- *@
+
+<div>
+    <label for="userInput">User:</label>
+    <input id="userInput" @bind="userInput" />
+</div>
+<div class="form-group">
+    <label for="messageInput">Message:</label>
+    <input id="messageInput" @bind="messageInput" />
+</div>
+<button @onclick="Send" disabled="@(!IsConnected)">Send Message</button>
+
+<hr />
+
+<ul id="messagesList">
+    @foreach (var message in messages)
+    {
+        <li>@message</li>
+    }
+</ul>
+
+@code
+{
+    HubConnection hubConnection;
+    List<string> messages = new List<string>();
+    string userInput;
+    string messageInput;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/chatHub")) // NOTE: This is setup in the server-side startup in endpoint configurations.
+            .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            var encodedMsg = $"{user} says {message}";
+            messages.Add(encodedMsg);
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    Task Send() => hubConnection.SendAsync("SendMessage", userInput, messageInput);
+
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+
+}
