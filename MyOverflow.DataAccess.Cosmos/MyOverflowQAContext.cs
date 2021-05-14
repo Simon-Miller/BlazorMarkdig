@@ -51,12 +51,6 @@ namespace MyOverflow.DataAccess.Cosmos
 
             var database = (Database)await client.CreateDatabaseIfNotExistsAsync(databaseName);
 
-            //var containers = new (string id, string partitionKeyPath, int throughput)[]
-            //{
-            //        ("questions", $"/{nameof(Question.UserId)}", defaultRequestUnitsProvision), // TODO: type safety!  Do we have entities to represent the data?  If so, use them!
-            //        ("answers", $"/{nameof(Answer.AnswerForUser)}", defaultRequestUnitsProvision)
-            //};
-
             this.QuestionsContainer = await getOrMakeContainer(("questions", $"/{nameof(Question.UserId)}", defaultRequestUnitsProvision));
             this.AnswersContainer = await getOrMakeContainer(("answers", $"/{nameof(Answer.AnswerForUser)}", defaultRequestUnitsProvision));
 
@@ -77,14 +71,18 @@ namespace MyOverflow.DataAccess.Cosmos
         private async Task<ItemResponse<T>> saveWrap<T>(T entityToSave) where T : CosmosDbEntityBase
         {
             if (string.IsNullOrWhiteSpace(entityToSave.Id))
+            {
+                // for mega resilience, and that one in a 2^128 (bits) or 10^38 (approx) chance a collision,
+                // we could test the failure to create (duplicate) and assign another GUID to the Id, and try again..
+
+                // see also: https://github.com/Azure/azure-cosmos-dotnet-v3/issues/815
+                // best practice for us to generate the ID instead of Cosmos... its cheaper!
+
+                entityToSave.Id = Guid.NewGuid().ToString();
                 return await this.QuestionsContainer.CreateItemAsync(entityToSave);
+            }
             else
                 return await this.QuestionsContainer.ReplaceItemAsync(entityToSave, entityToSave.Id);
-
-            //if (string.IsNullOrWhiteSpace(question.Id))
-            //    return await this.QuestionsContainer.CreateItemAsync(question, new PartitionKey($"{question.UserId}"));
-            //else
-            //    return await this.QuestionsContainer.ReplaceItemAsync(question, question.Id, new PartitionKey($"{question.UserId}"));
         }
 
         public Task<ItemResponse<Question>> StoreQuestion(Question question)

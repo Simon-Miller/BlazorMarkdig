@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace MyOverflow.Shared
 {
     public abstract class CosmosDbEntityBase
     {
         /// <summary>
-        /// generated when saved for the first time.
+        /// generated when saved for the first time.  Leaving blank means we know when to Create or Replace at point of saving.
         /// </summary>
         [JsonProperty("id")]
         public string Id { get; set; }

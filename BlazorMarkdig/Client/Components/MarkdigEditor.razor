@@ -97,6 +97,15 @@
             // check for exceptions here, that kind of thing.
             // or Toast a message like "Saved".
             // perhaps we navigate away from this 'page' to the view of the question we just posted?
+            var isComplete = t.IsCompleted;
+            var isFaulted = t.IsFaulted;
+            var status = t.Status;
+            var ex = t.Exception;
+
+            if(ex!= null)
+            {
+
+            }
         });
     }
 }
