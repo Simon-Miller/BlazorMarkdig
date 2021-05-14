@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 
 @inject NavigationManager NavigationManager
+@inject IChatHubProxy chatHubProxy
 
 
 @* javascript call to click the InputFile component with matching id.
@@ -59,7 +60,8 @@
 
                         try
                         {
-                            await this.SendImageFile(imageData);
+                            //await this.SendImageFile(imageData);
+                            await this.chatHubProxy.SendImageFile(imageData);
 
                             var encodedFileName = System.Uri.EscapeUriString(imageData.FileName);
 
@@ -99,21 +101,31 @@
         }
     }
 
-    HubConnection hubConnection;
+    //HubConnection hubConnection;
 
-    protected override async Task OnInitializedAsync()
-    {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/chatHub")) // NOTE: This is setup in the server-side startup in endpoint configurations.
-            .Build();
+    //// TODO: Make this something DI'able, so we can re-use it on MarkdifEditor
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    hubConnection = new HubConnectionBuilder()
+    //        .WithUrl(NavigationManager.ToAbsoluteUri("/chatHub")) // NOTE: This is setup in the server-side startup in endpoint configurations.
+    //        .Build();
 
-        await hubConnection.StartAsync();
-    }
+    //    await hubConnection.StartAsync();
+    //}
 
-    Task Send(byte[] data) => hubConnection.SendAsync("StoreFile", data);
+    //Task Send(byte[] data) => hubConnection.SendAsync("StoreFile", data);
 
-    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    //public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
 
-    public Task SendImageFile(BlazorMarkdig.Shared.Models.ImageFile data) => hubConnection.SendAsync("StoreImageFile", data);
-    
+    //public Task SendImageFile(BlazorMarkdig.Shared.Models.ImageFile data) => hubConnection.SendAsync("StoreImageFile", data);
+
+    //public async Task SendQuestion(MyOverflow.Shared.Question question)
+    //{
+    //    bool guaranteedResponse = await hubConnection.InvokeAsync<bool>("StoreQuestion", question);
+
+    //    if(guaranteedResponse == false)
+    //    {
+    //        // show some kind of error message, like "Please try again later" ?
+    //    }
+    //}
 }

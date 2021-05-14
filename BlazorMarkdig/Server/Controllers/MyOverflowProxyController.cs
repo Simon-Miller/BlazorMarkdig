@@ -23,6 +23,7 @@ namespace BlazorMarkdig.Server.Controllers
         [HttpGet]
         public async Task<ActionResult> GetFileAsync(string identifier)
         {
+            // TODO: This is ok for now - - but we should be able to access the file directly from Blob storage with public URL.
             using (var stream = await this.realHttpClient.GetStreamAsync($"/MyOverflow/GetFile/{identifier}"))
             {
                 //var bytes = new byte[stream.Length];

@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\MyOverflow.Shared\MyOverflow.Shared.csproj" />
     <ProjectReference Include="..\Shared\BlazorMarkdig.Shared.csproj" />
   </ItemGroup>
 

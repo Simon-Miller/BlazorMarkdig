@@ -1,6 +1,6 @@
 ﻿using BlazorMarkdig.Shared.Models;
-using BlazorMarkdig.Shared.Proxies;
 using Microsoft.AspNetCore.Mvc;
+using MyOverflow.Shared;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +10,17 @@ namespace MyOverflow.Api.Controllers
 {
     public class MyOverflowController : Controller
     {
+        #region constructor
+
+        public MyOverflowController(IQAContext documentStore)
+        {
+            this.documentStore = documentStore;
+        }
+
+        #endregion
+
+        private readonly IQAContext documentStore;
+
         private static List<ImageFile> filesStore = new();
 
         // GOTCHA!!  Does support wild card.  So "ab/cd/ef.jpg" will work. 
@@ -65,7 +76,15 @@ namespace MyOverflow.Api.Controllers
             return new StatusCodeResult(Microsoft.AspNetCore.Http.StatusCodes.Status500InternalServerError);
         }
 
+        // TODO: Write code to call this from the UI side.
+        [Route("MyOverflow/StoreQuestion")]
+        [HttpPost]
+        public async Task<ActionResult> StoreQuestion([FromBody] Question question)
+        {
+            await this.documentStore.StoreQuestion(question);
 
+            return Ok();
+        }
 
         //// GET: MyOverflowController
         //public ActionResult Index()

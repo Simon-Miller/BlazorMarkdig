@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using MyOverflow.DataAccess.Cosmos;
 
 namespace MyOverflow.Api
 {
@@ -24,6 +25,8 @@ namespace MyOverflow.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyOverflow.Api", Version = "v1" });
             });
+
+            services.AddQAContext();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

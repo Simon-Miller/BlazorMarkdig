@@ -1,5 +1,6 @@
 ﻿@inject MarkdigParser markdig
 @inject IJSRuntime js
+@inject IChatHubProxy chatHubProxy
 
 <div class="col-6">
     <div class="col-12 mb-1" style="border:solid 1px #000; border-radius:0.25rem;">
@@ -23,6 +24,9 @@
 </div>
 <div class="col-6" style="border:solid 1px #aaa; border-radius:0.25rem;">
     @htmlOutput
+</div>
+<div class="col-12">
+    <button class="btn btn-primary" @onclick="@this.postQuestion">Post Question</button>
 </div>
 
 @code
@@ -75,5 +79,24 @@
     {
         await js.InvokeVoidAsync("markdigEditor.insertTemplate", this.currentCaretPosition, template, caretOffset);
         this.currentCaretPosition += caretOffset;
+    }
+
+    private void postQuestion()
+    {
+        // TODO: Waiting for re-usable DI'able Hub currently in FileUploadButton!
+
+        this.chatHubProxy.SendQuestion(new MyOverflow.Shared.Question
+        {
+            Title = "question title",
+            QuestionMarkdown = this.markdownText,
+            PostedByUserName = "berty",
+            UserId = Guid.NewGuid()
+        })
+        .ContinueWith(t => 
+        {
+            // check for exceptions here, that kind of thing.
+            // or Toast a message like "Saved".
+            // perhaps we navigate away from this 'page' to the view of the question we just posted?
+        });
     }
 }

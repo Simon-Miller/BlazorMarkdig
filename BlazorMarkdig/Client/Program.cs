@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
+using BlazorMarkdig.Client.Hubs;
 
 namespace BlazorMarkdig.Client
 {
@@ -37,6 +38,7 @@ namespace BlazorMarkdig.Client
             //services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             services.AddSingleton<MarkdigParser>();
+            services.AddSingleton<IChatHubProxy, ChatHubProxy>();
 
             //services.AddHttpClient<IMyOverflowProxy, MyOverflowProxy>(Client =>)
 
@@ -49,6 +51,9 @@ namespace BlazorMarkdig.Client
 
             //    return new MyOverflowProxy("https://localhost:44394/");
             //});
+
+
+
         }
     }
 }

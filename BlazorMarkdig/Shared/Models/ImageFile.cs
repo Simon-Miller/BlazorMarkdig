@@ -97,67 +97,6 @@ namespace BlazorMarkdig.Shared.Models
             };
         }
 
-        //public static ImageFile Deserialize(byte[] source)
-        //{            
-        //    int offset = 0;
-
-        //    return new ImageFile()
-        //    {
-        //        Id = Guid.Parse(decodeString(source, ref offset)),
-        //        FileName = decodeString(source, ref offset),
-        //        Extension = decodeString(source, ref offset),
-        //        MimeType = decodeString(source, ref offset),
-        //        RawData = decodeBytes(source, ref offset),
-        //        Width = toInt(source, ref offset),
-        //        Height = toInt(source, ref offset)
-        //    };
-        //}
-
-        //private static UInt16 toUInt16(byte[] source, ref int offset)
-        //{
-        //    var data = (UInt16)( (source[offset+1] << 8) | source[offset] );
-        //    offset += 2;
-        //    return data;
-        //}
-        //private static int toInt(byte[] source, ref int offset)
-        //{
-        //    byte byte0 = source[offset++];
-        //    byte byte1 = source[offset++];
-        //    byte byte2 = source[offset++];
-        //    byte byte3 = source[offset++];
-
-        //    var calc = (byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0;
-        //    return (int)calc;
-        //}
-        //private static string toString(byte[] source, ref int offset, int length)
-        //{
-        //    var stringData = subArray(source, offset, length);
-        //    var result = System.Text.ASCIIEncoding.UTF8.GetString(stringData);
-        //    offset += length;
-        //    return result;
-        //}
-        //private static byte[] subArray(byte[] source, int offset, int length)
-        //{
-        //    var destinationArray = new byte[length];
-        //    for (int i = 0; i < length; i++)
-        //        destinationArray[i] = source[offset + i];
-
-        //    return destinationArray;
-        //}
-        //private static string decodeString(byte[] source, ref int offset)
-        //{
-        //    var length = toUInt16(source, ref offset);
-        //    return toString(source, ref offset, length);
-        //}
-        //private static byte[] decodeBytes(byte[] source, ref int offset)
-        //{
-        //    var len = toInt(source, ref offset);
-        //    var data = subArray(source, offset, len);
-        //    offset += len;
-        //    return data;
-        //}
-
-
         private static string decodeString(Stream stream)
         {
             var length = toUInt16(stream);

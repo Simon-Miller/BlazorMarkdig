@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using MyOverflow.Shared;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -62,6 +63,22 @@ namespace BlazorMarkdig.Server.Hubs
                 //var content = JsonContent.Create(data);
                 //var xxx = content.Headers.ContentType;
                 //await client.PostAsync("https://localhost:44394/MyOverflow/StoreImageFile", content);
+            }
+        }
+
+        public async Task<bool> StoreQuestion(Question question)
+        {
+            try
+            {
+                using (var client = new HttpClient()) // should be instances ONCE per APPLICATION
+                {
+                    await client.PostAsJsonAsync("https://localhost:44394/MyOverflow/StoreQuestion", question);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
             }
         }
     }
