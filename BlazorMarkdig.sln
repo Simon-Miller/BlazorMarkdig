@@ -11,13 +11,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorMarkdig.Shared", "Bla
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyOverflow.Api", "MyOverflow.Api\MyOverflow.Api.csproj", "{F8E426AC-9A96-44FF-A0F6-156139946176}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyOverflow.DataAccess.Cosmos", "MyOverflow.DataAccess.Cosmos\MyOverflow.DataAccess.Cosmos.csproj", "{5747780F-3816-4DE2-85EA-AFB22466F502}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyOverflow.DataAccess.Cosmos", "MyOverflow.DataAccess.Cosmos\MyOverflow.DataAccess.Cosmos.csproj", "{5747780F-3816-4DE2-85EA-AFB22466F502}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{2BA4434F-CEDA-43D6-9A9B-1112294121DF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClientSide", "ClientSide", "{B5835130-0DA5-4510-B0BE-41DD3E13B178}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyOverflow.Shared", "MyOverflow.Shared\MyOverflow.Shared.csproj", "{9249EF22-D319-4217-A2FC-05BFC4D45615}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyOverflow.Shared", "MyOverflow.Shared\MyOverflow.Shared.csproj", "{9249EF22-D319-4217-A2FC-05BFC4D45615}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyOverflow.DataAccess.Blob", "MyOverflow.DataAccess.Blob\MyOverflow.DataAccess.Blob.csproj", "{08261097-F590-4E07-BB6C-4E6FCCBA5D17}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{5F0C4EDB-4341-4623-B5E8-7B17A7A67A67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyOverflow.DataAccess.Blob.Tests", "MyOverflow.DataAccess.Blob.Tests\MyOverflow.DataAccess.Blob.Tests.csproj", "{3CC928D4-9BB3-4821-8490-09583FD7DFF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +55,14 @@ Global
 		{9249EF22-D319-4217-A2FC-05BFC4D45615}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9249EF22-D319-4217-A2FC-05BFC4D45615}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9249EF22-D319-4217-A2FC-05BFC4D45615}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08261097-F590-4E07-BB6C-4E6FCCBA5D17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08261097-F590-4E07-BB6C-4E6FCCBA5D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08261097-F590-4E07-BB6C-4E6FCCBA5D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08261097-F590-4E07-BB6C-4E6FCCBA5D17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CC928D4-9BB3-4821-8490-09583FD7DFF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CC928D4-9BB3-4821-8490-09583FD7DFF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CC928D4-9BB3-4821-8490-09583FD7DFF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CC928D4-9BB3-4821-8490-09583FD7DFF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +74,8 @@ Global
 		{F8E426AC-9A96-44FF-A0F6-156139946176} = {2BA4434F-CEDA-43D6-9A9B-1112294121DF}
 		{5747780F-3816-4DE2-85EA-AFB22466F502} = {2BA4434F-CEDA-43D6-9A9B-1112294121DF}
 		{9249EF22-D319-4217-A2FC-05BFC4D45615} = {2BA4434F-CEDA-43D6-9A9B-1112294121DF}
+		{08261097-F590-4E07-BB6C-4E6FCCBA5D17} = {2BA4434F-CEDA-43D6-9A9B-1112294121DF}
+		{3CC928D4-9BB3-4821-8490-09583FD7DFF0} = {5F0C4EDB-4341-4623-B5E8-7B17A7A67A67}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A1E2371F-A9D8-4CEA-8DDD-14F4BEAE5036}

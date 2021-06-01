@@ -65,7 +65,9 @@
 
                             var encodedFileName = System.Uri.EscapeUriString(imageData.FileName);
 
-                            var template = $"\r\n![image](https://localhost:44394/MyOverflow/GetFile/{encodedFileName})";
+                            //var template = $"\r\n![image](https://localhost:44394/MyOverflow/GetFile/{encodedFileName})";
+                            var template = $"\r\n![image](http://127.0.0.1:10000/devstoreaccount1/images/{encodedFileName})";
+                             
                             var unescaped = System.Text.RegularExpressions.Regex.Unescape(template);
 
                             await Parent.PasteTemplate(template, unescaped.Length - 1);

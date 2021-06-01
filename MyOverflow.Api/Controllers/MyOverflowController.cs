@@ -1,5 +1,7 @@
-﻿using BlazorMarkdig.Shared.Models;
+﻿using Azure.Storage.Blobs;
+using BlazorMarkdig.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
+using MyOverflow.DataAccess.Blob;
 using MyOverflow.Shared;
 using System.Collections.Generic;
 using System.IO;
@@ -12,30 +14,36 @@ namespace MyOverflow.Api.Controllers
     {
         #region constructor
 
-        public MyOverflowController(IQAContext documentStore)
+        public MyOverflowController(IQAContext documentStore, IBlobContext azureBlobContext)
         {
             this.documentStore = documentStore;
+            this.azureBlobContext = azureBlobContext;
         }
 
         #endregion
 
         private readonly IQAContext documentStore;
 
-        private static List<ImageFile> filesStore = new();
+        //private static List<ImageFile> filesStore = new();
+        private readonly IBlobContext azureBlobContext;
+
 
         // GOTCHA!!  Does support wild card.  So "ab/cd/ef.jpg" will work. 
         [Route("MyOverflow/GetFile/{*identifier}")]
         [HttpGet]
         public ActionResult GetFile(string identifier)
         {
-            string rawIdentifier = System.Web.HttpUtility.UrlDecode(identifier);
+            //// NOTE: Since we can predict the URL from Blob storage, we don't need this method any more.
+            ///----------------------------------------------
 
-            var file = filesStore.FirstOrDefault(f => f.FileName.ToLower() == rawIdentifier.Trim().ToLower());
+            //string rawIdentifier = System.Web.HttpUtility.UrlDecode(identifier);
 
-            if (file is not null)
-            {
-                return File(file.RawData, file.MimeType);
-            }
+            //var file = filesStore.FirstOrDefault(f => f.FileName.ToLower() == rawIdentifier.Trim().ToLower());
+
+            //if (file is not null)
+            //{
+            //    return File(file.RawData, file.MimeType);
+            //}
 
             return NotFound();
         }
@@ -51,16 +59,23 @@ namespace MyOverflow.Api.Controllers
         {
             using (var ms = new MemoryStream((int)Request.ContentLength))
             {
-                //await Request.Body.CopyToAsync(ms);
+                ////await Request.Body.CopyToAsync(ms);
 
 
 
-                var imageFile = ImageFile.Deserialize(Request.BodyReader.AsStream());
+                //var imageFile = ImageFile.Deserialize(Request.BodyReader.AsStream());
 
-                filesStore.Add(imageFile);
+                ////filesStore.Add(imageFile);
+
+                //this.azureBlobContext.SetupBlobContainerClient("images");
+
+                // NOTE: USE OTHER METHOD
+
                 return new OkResult();
             }
         }
+
+
 
         [Route("MyOverflow/StoreImageFile")]
         [HttpPost]
@@ -69,8 +84,24 @@ namespace MyOverflow.Api.Controllers
             if (data != null)
             {
                 // how do you get across the message that this is a static property?
-                MyOverflowController.filesStore.Add(data);
-                return new OkResult();
+                //MyOverflowController.filesStore.Add(data);
+
+                var task = Task.Run(async () =>
+                {
+                    var client = await azureBlobContext.SetupBlobContainerClient("images"); // images Folder in URI path. });
+
+                    using (var memStream = new MemoryStream(data.RawData))
+                    {
+                        
+                        var result = await azureBlobContext.Upload(client, data.FileName, memStream);
+
+                        // NOTE: Don't need any stored info.
+                    }
+                });
+
+                task.Wait(); // JOIN thread.  Yuck!  Don't do this in production, please!!
+
+                return new OkResult(); // NOTE: You really should check for exceptions before returning an OK...
             }
 
             return new StatusCodeResult(Microsoft.AspNetCore.Http.StatusCodes.Status500InternalServerError);

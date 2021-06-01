@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using MyOverflow.DataAccess.Blob;
 using MyOverflow.DataAccess.Cosmos;
 
 namespace MyOverflow.Api
@@ -27,6 +28,7 @@ namespace MyOverflow.Api
             });
 
             services.AddQAContext();
+            services.AddBlobContext();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

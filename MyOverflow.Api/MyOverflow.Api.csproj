@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BlazorMarkdig\Shared\BlazorMarkdig.Shared.csproj" />
+    <ProjectReference Include="..\MyOverflow.DataAccess.Blob\MyOverflow.DataAccess.Blob.csproj" />
     <ProjectReference Include="..\MyOverflow.DataAccess.Cosmos\MyOverflow.DataAccess.Cosmos.csproj" />
   </ItemGroup>
 
