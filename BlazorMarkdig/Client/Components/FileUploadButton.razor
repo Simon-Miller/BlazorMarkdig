@@ -9,7 +9,7 @@
     Note that we use CSS to prevent thr poiner event on the InputFile itself, so it falls through to this DIV.
     Why?  So the click event is triggered by the image, OR the InputFile.  Not by the InputFile, AND THEN by the DIV,
     thus preventing the click event triggering twice. *@
-<div class="d-inline me-btn cursor-pointer" style="padding:0.4rem;"
+<div class="d-inline-block text-center oi me-btn cursor-pointer"
      onclick="document.getElementById(@($"'{id}'")).click()">
 
     <InputFile id="@id" class="oi oi-file cursor-pointer" style="width:1rem; pointer-events: none;" title="image"

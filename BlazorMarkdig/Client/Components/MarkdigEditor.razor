@@ -1,32 +1,48 @@
 ﻿@inject MarkdigParser markdig
 @inject IJSRuntime js
 @inject IChatHubProxy chatHubProxy
+@*
+    😀 😃 😄 🤡 💩 👻 😈 ☠ 🤠
 
-<div class="col-6">
-    <div class="col-12 mb-1" style="border:solid 1px #000; border-radius:0.25rem;">
-        <CascadingValue Value="@this">
+    https://unicode.org/emoji/charts/full-emoji-list.html
 
-            <ActionButton Class="oi-bold" Title="bold" Template="****" Offset="2" />
-            <ActionButton Class="oi-italic" Title="italic" Template="**" Offset="1" />
-            &nbsp;
-            <ActionButton Class="oi-header" Style="font-size:1rem;" Title="Heading 1" Template="\r\n# " Offset="4" />
-            <ActionButton Class="oi-header" Style="font-size:0.8rem;" Title="Heading 2" Template="\r\n## " Offset="5" />
-            <ActionButton Class="oi-header" Style="font-size:0.6rem;" Title="Heading 3" Template="\r\n### " Offset="6" />
-            &nbsp;
+    You can copy/paste emojis from here into your markdown.  Browsers render multi-colour images.
+*@
 
-            @* left this in 'raw' to allow you to compare with the component usage above. *@
-            <button class="me-btn oi oi-link-intact" title="Link url" @onclick="@(()=> this.PasteTemplate("\r\n[text](http://)", caretOffset:1))" />
-            <FileUploadButton />
-
-        </CascadingValue>
+<div class="row">
+    <div class="col-6 mb-3">
+        <input type="text" @bind-value="@title" placeholder="Title" class="w-100" />
     </div>
-    <textarea id="@id" @bind-value="@markdownText" @bind-value:event="oninput" class="form-control" style="height:10rem;" />
 </div>
-<div class="col-6" style="border:solid 1px #aaa; border-radius:0.25rem;">
-    @htmlOutput
+<div class="row">
+    <div class="col-6">
+        <div class="col-12 mb-1 pb-1" style="border:solid 1px #000; border-radius:0.25rem;">
+            <CascadingValue Value="@this">
+
+                <ActionButton Class="oi-bold" Title="bold" Template="****" Offset="2" />
+                <ActionButton Class="oi-italic" Title="italic" Template="**" Offset="1" />
+                &nbsp;
+                <ActionButton Class="oi-header" Style="font-size:1rem;" Title="Heading 1" Template="\r\n# " Offset="4" />
+                <ActionButton Class="oi-header" Style="font-size:0.8rem;" Title="Heading 2" Template="\r\n## " Offset="5" />
+                <ActionButton Class="oi-header" Style="font-size:0.6rem;" Title="Heading 3" Template="\r\n### " Offset="6" />
+                &nbsp;
+
+                @* left this in 'raw' to allow you to compare with the component usage above. *@
+                <button class="me-btn oi oi-link-intact" title="Link url" @onclick="@(()=> this.PasteTemplate("\r\n[text](http://)", caretOffset:1))" />
+                <FileUploadButton />
+
+            </CascadingValue>
+        </div>
+        <textarea id="@id" @bind-value="@markdownText" @bind-value:event="oninput" class="form-control" style="height:10rem;" />
+    </div>
+    <div class="col-6" style="border:solid 1px #aaa; border-radius:0.25rem;">
+        @htmlOutput
+    </div>
 </div>
-<div class="col-12">
-    <button class="btn btn-primary" @onclick="@this.postQuestion">Post Question</button>
+<div class="row">
+    <div class="col-3">
+        <button class="btn btn-primary w-100" @onclick="@this.postQuestion">Post Question</button>
+    </div>
 </div>
 
 @code
@@ -36,6 +52,7 @@
     private DotNetObjectReference<MarkdigEditor> dotNetReference;
 
     // what the user types..
+    private string title = null;
     private string _markdownText = null;
     private string markdownText
     {
@@ -87,22 +104,22 @@
 
         this.chatHubProxy.SendQuestion(new MyOverflow.Shared.Question
         {
-            Title = "question title",
+            Title = this.title,
             QuestionMarkdown = this.markdownText,
             PostedByUserName = "berty",
             UserId = Guid.NewGuid()
         })
-        .ContinueWith(t => 
+        .ContinueWith(t =>
         {
-            // check for exceptions here, that kind of thing.
-            // or Toast a message like "Saved".
-            // perhaps we navigate away from this 'page' to the view of the question we just posted?
-            var isComplete = t.IsCompleted;
+        // check for exceptions here, that kind of thing.
+        // or Toast a message like "Saved".
+        // perhaps we navigate away from this 'page' to the view of the question we just posted?
+        var isComplete = t.IsCompleted;
             var isFaulted = t.IsFaulted;
             var status = t.Status;
             var ex = t.Exception;
 
-            if(ex!= null)
+            if (ex != null)
             {
 
             }

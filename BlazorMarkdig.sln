@@ -15,15 +15,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyOverflow.DataAccess.Cosmo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{2BA4434F-CEDA-43D6-9A9B-1112294121DF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClientSide", "ClientSide", "{B5835130-0DA5-4510-B0BE-41DD3E13B178}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client_facing", "Client_facing", "{B5835130-0DA5-4510-B0BE-41DD3E13B178}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyOverflow.Shared", "MyOverflow.Shared\MyOverflow.Shared.csproj", "{9249EF22-D319-4217-A2FC-05BFC4D45615}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyOverflow.DataAccess.Blob", "MyOverflow.DataAccess.Blob\MyOverflow.DataAccess.Blob.csproj", "{08261097-F590-4E07-BB6C-4E6FCCBA5D17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyOverflow.DataAccess.Blob", "MyOverflow.DataAccess.Blob\MyOverflow.DataAccess.Blob.csproj", "{08261097-F590-4E07-BB6C-4E6FCCBA5D17}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{5F0C4EDB-4341-4623-B5E8-7B17A7A67A67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyOverflow.DataAccess.Blob.Tests", "MyOverflow.DataAccess.Blob.Tests\MyOverflow.DataAccess.Blob.Tests.csproj", "{3CC928D4-9BB3-4821-8490-09583FD7DFF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyOverflow.DataAccess.Blob.Tests", "MyOverflow.DataAccess.Blob.Tests\MyOverflow.DataAccess.Blob.Tests.csproj", "{3CC928D4-9BB3-4821-8490-09583FD7DFF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
