@@ -19,6 +19,11 @@ namespace MyOverflow.DataAccess.Cosmos
                     return await factory.Make();
                 });
 
+                /*
+                    Seeing an error like "actively refused connection on localhost:8081" ??
+                    ARE YOU RUNNING AZURE STORAGE EMULATOR?
+                    ARE YOU RUNNING AZURE COSMOS DB EMULATOR?
+                 */
                 return task.GetAwaiter().GetResult();
             });
         }

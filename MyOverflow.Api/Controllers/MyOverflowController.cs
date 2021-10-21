@@ -3,13 +3,19 @@ using BlazorMarkdig.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using MyOverflow.DataAccess.Blob;
 using MyOverflow.Shared;
+using Newtonsoft.Json;
+using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MyOverflow.Api.Controllers
 {
+    // this attribute doesn't seem to help at all - in actually seems to make things worse!
+    //[ApiController]
     public class MyOverflowController : Controller
     {
         #region constructor
@@ -21,6 +27,13 @@ namespace MyOverflow.Api.Controllers
         }
 
         #endregion
+
+
+        /// <summary>
+        /// 1MB expressed as bytes.
+        /// </summary>
+        const long MAX_file_size = 1024 * 1024; // 
+
 
         private readonly IQAContext documentStore;
 
@@ -53,33 +66,82 @@ namespace MyOverflow.Api.Controllers
         /// So it seems the best approach I can find is to consider the content of the posted form (body) to be binary,
         /// and extract that out.  Given it is a stream, we could support that directly in ImageFile for improvements!
         /// </summary>
+        [RequestSizeLimit(MAX_file_size)]
+        [RequestFormLimits(MultipartBodyLengthLimit = MAX_file_size, BufferBodyLengthLimit = MAX_file_size)]
         [Route("MyOverflow/StoreFile")]
         [HttpPost]
-        public ActionResult StoreFile()
+        public async Task<ActionResult> StoreFile()
         {
-            using (var ms = new MemoryStream((int)Request.ContentLength))
+            try
             {
-                ////await Request.Body.CopyToAsync(ms);
+                //var rawContent = new List<byte>(); // I've no idea how big, so needs to be able to grow.  yeuck!
+                // this stream doesn't tell us the content length.  So we have to go without.  argh!!
+                //while(Request.Body.CanRead)
+                //{
+                // complans it has to ber async!
+                //var nextByte = (byte)Request.Body.ReadByte();
+
+                //var mem = new Memory<byte>();
+                //var bytesRead = await Request.Body.ReadAsync(mem);
+
+                //rawContent.Add(nextByte);
+                //}
 
 
+                var readResult = await Request.BodyReader.ReadAsync();
 
-                //var imageFile = ImageFile.Deserialize(Request.BodyReader.AsStream());
+                Func<ReadOnlySequence<byte>, byte[]> fn = seq => 
+                {
+                    var buffer = new List<byte>();
+                    var sr = new SequenceReader<byte>(seq);
+                    while(sr.TryRead(out byte value))
+                    {
+                        buffer.Add(value);
+                    }
+                    return buffer.ToArray();
+                };
 
-                ////filesStore.Add(imageFile);
+                var bytes = fn(readResult.Buffer);
 
-                //this.azureBlobContext.SetupBlobContainerClient("images");
+                                   
 
-                // NOTE: USE OTHER METHOD
+                var jsonContent = System.Text.UTF8Encoding.UTF8.GetString(bytes);
+                var imageFileFromJson = System.Text.Json.JsonSerializer.Deserialize<ImageFile>(jsonContent);
 
-                return new OkResult();
+                using (var ms = new MemoryStream((int)Request.ContentLength))
+                {
+                    await Request.Body.CopyToAsync(ms);
+                    var json = System.Text.UTF8Encoding.UTF8.GetString(ms.GetBuffer());
+
+                    // ah!  We've got raw data, but how to deserialize that as Json?
+                    System.Text.Json.JsonSerializer.Deserialize<ImageFile>(json);
+
+                    var imageFile = ImageFile.Deserialize(Request.BodyReader.AsStream());
+
+                    ////filesStore.Add(imageFile);
+
+                    //this.azureBlobContext.SetupBlobContainerClient("images");
+
+                    // NOTE: USE OTHER METHOD
+
+                    return new OkResult();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return new ForbidResult();
             }
         }
 
-
-
+        /// <summary>
+        /// Ensure there's plenty of data allowed in configuration of the service.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [Route("MyOverflow/StoreImageFile")]
         [HttpPost]
-        public ActionResult StoreImageFile([FromBody] ImageFile data) // FromBody is needed to instruct model binding
+        public ActionResult StoreImageFile([FromBody]ImageFile data) // FromBody is needed to instruct model binding
         {
             if (data != null)
             {
@@ -107,6 +169,52 @@ namespace MyOverflow.Api.Controllers
             return new StatusCodeResult(Microsoft.AspNetCore.Http.StatusCodes.Status500InternalServerError);
         }
 
+        [Route("MyOverflow/StoreImageFile2")]
+        [HttpPost]
+        [DisableRequestSizeLimit]
+        [RequestSizeLimit(MAX_file_size)]
+        [RequestFormLimits(MultipartBodyLengthLimit = MAX_file_size, BufferBodyLengthLimit = MAX_file_size)]        
+        public ActionResult StoreImageFile2([FromBody] JsonElement body) // FromBody is needed to instruct model binding
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(body);
+            
+            // NOTE:  I don't know why this doesn't work with Microsoft's new JSON deserializer, but that is likely what serialized it?
+            //        Visual Studio debugger allows you view 'body' as JSON, and doesn't have a problem with it.
+            //        This gives us back a NULL object for the entire json.
+            //var dto = System.Text.Json.JsonSerializer.Deserialize<ImageFileDTO>(json, new JsonSerializerOptions() { DefaultBufferSize = 1024 * 1024 });
+            
+            // SO, BACK TO NEWTONSOFT JSON!
+            var dto = JsonConvert.DeserializeObject<ImageFileDTO>(json); 
+
+            var data = ImageFile.From(dto);
+
+            if (data != null)
+            {
+                // how do you get across the message that this is a static property?
+                //MyOverflowController.filesStore.Add(data);
+
+                var task = Task.Run(async () =>
+                {
+                    var client = await azureBlobContext.SetupBlobContainerClient("images"); // images Folder in URI path. });
+
+                    using (var memStream = new MemoryStream(data.RawData))
+                    {
+
+                        var result = await azureBlobContext.Upload(client, data.FileName, memStream);
+
+                        // NOTE: Don't need any stored info.
+                    }
+                });
+
+                task.Wait(); // JOIN thread.  Yuck!  Don't do this in production, please!!
+
+                return new OkResult(); // NOTE: You really should check for exceptions before returning an OK...
+            }
+
+            return new StatusCodeResult(Microsoft.AspNetCore.Http.StatusCodes.Status500InternalServerError);
+        }
+
+
         // TODO: Write code to call this from the UI side.
         [Route("MyOverflow/StoreQuestion")]
         [HttpPost]
@@ -116,6 +224,9 @@ namespace MyOverflow.Api.Controllers
 
             return Ok();
         }
+
+
+
 
         //// GET: MyOverflowController
         //public ActionResult Index()

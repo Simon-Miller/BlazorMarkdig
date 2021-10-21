@@ -2,7 +2,6 @@
 using MyOverflow.Shared;
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
@@ -10,13 +9,6 @@ namespace BlazorMarkdig.Server.Hubs
 {
     public class ChatHub : Hub
     {
-        public ChatHub()
-        {
-
-        }
-
-
-
         public async Task SendMessage(string user, string message)
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);

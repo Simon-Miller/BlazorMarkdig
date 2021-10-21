@@ -4,6 +4,37 @@ using System.IO;
 
 namespace BlazorMarkdig.Shared.Models
 {
+    /// <summary>
+    /// the idea being we use this type right up to storing it.
+    /// It'll parse as JSON unquestioningly.  
+    /// We'll just have the trouble of getting to original byte[] back from the encoded RawData.  We could have some level of control over that if we wish,
+    /// as a Base64 encoded string.
+    /// </summary>
+    public class ImageFileDTO
+    {        
+        public Guid Id { get; set; }
+        public string FileName { get; set; }
+        public string Extension { get; set; }
+        public string MimeType { get; set; }
+        public string RawData { get; set; } // to be deserialized 
+        public int Width { get; set; }
+        public int Height { get; set; }
+
+        public static ImageFileDTO From(ImageFile source)
+        {
+            return new ImageFileDTO
+            {
+                Id = source.Id,
+                FileName = source.FileName,
+                Extension = source.Extension,
+                MimeType = source.MimeType,
+                Width = source.Width,
+                Height = source.Height,
+                RawData = Convert.ToBase64String(source.RawData)
+            };
+        }
+    }
+
     public class ImageFile
     {
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -28,6 +59,9 @@ namespace BlazorMarkdig.Shared.Models
 
         public int Size => RawData?.Length ?? 0;
 
+        /// <summary>
+        /// encodes this instance into a byte[], which can later be deserialised. see <seealso cref="Deserialize(Stream)"/>
+        /// </summary>
         public byte[] Serialize()
         {
             var data = new List<byte>();
@@ -80,6 +114,9 @@ namespace BlazorMarkdig.Shared.Models
             output.AddRange(data);
         }
 
+        /// <summary>
+        /// decode a byte stream into an instance of <see cref="ImageFile"/>.
+        /// </summary>
         public static ImageFile Deserialize(Stream stream)
         {
             //stream.Seek(0, SeekOrigin.Begin);
@@ -142,6 +179,20 @@ namespace BlazorMarkdig.Shared.Models
 
             var calc = (byte3 << 24) | (byte2 << 16) | (byte1 << 8) | byte0;
             return (int)calc;
+        }
+
+        public static ImageFile From(ImageFileDTO source)
+        {
+            return new ImageFile 
+            {
+                Id = source.Id,
+                FileName = source.FileName,
+                Extension = source.Extension,
+                MimeType = source.MimeType,
+                Width = source.Width,
+                Height = source.Height,
+                RawData = Convert.FromBase64String(source.RawData)
+            };
         }
     }
 }

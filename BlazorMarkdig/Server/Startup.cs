@@ -8,6 +8,14 @@ using System.Net.Http;
 
 namespace BlazorMarkdig.Server
 {
+    /// <summary>
+    /// NOTE: We're dependent on some external emulators!  Are you running:
+    /// https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator
+    /// and
+    /// https://aka.ms/cosmosdb-emulator
+    /// Both run from your local machine.  Cosmos is an app - fire, and forget, until you want to explore what's stored.
+    /// Blob (storage) emulator runs as command line.  Very easy, 2 mins to learn! (why we use it for demo)
+    /// </summary>
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -30,7 +38,11 @@ namespace BlazorMarkdig.Server
             //    BaseAddress = new System.Uri("https://localhost:44394/")
             //});
 
-            services.AddSignalR();
+            services.AddSignalR(options => 
+            {
+                options.EnableDetailedErrors = true;
+                options.MaximumReceiveMessageSize = 1024 * 1024; // 1 MB
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,6 +52,11 @@ namespace BlazorMarkdig.Server
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
+
+                // will this fix my SignalR issue?
+                app.UseCors(policy =>
+                    policy.WithOrigins("https://localhost:44394/") // MyOverflow.Api (fake Azure)
+                          .AllowAnyMethod());
             }
             else
             {
@@ -49,18 +66,24 @@ namespace BlazorMarkdig.Server
             }
 
             app.UseHttpsRedirection();
+
+            
+
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
             app.UseRouting();
 
-
+            
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
+                
                 endpoints.MapHub<ChatHub>("/chatHub");
+                endpoints.MapHub<HelloWorldHub>("/helloWorldHub"); // dictates the "path" name used by clients.
+
                 endpoints.MapFallbackToFile("index.html");
             });
         }

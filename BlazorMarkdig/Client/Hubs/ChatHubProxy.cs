@@ -10,14 +10,45 @@ namespace BlazorMarkdig.Client.Hubs
     {
         Task SendImageFile(ImageFile data);
         Task SendQuestion(MyOverflow.Shared.Question question);
+        Task SendImageFileBytes(byte[] data);
     }
 
     public class ChatHubProxy : HubProxy, IChatHubProxy
     {
-        public ChatHubProxy(NavigationManager nav) : base(nav, "/chatHub")
-        { }
+        bool constructed = false;
 
-        public Task SendImageFile(ImageFile data) => base.HubConnection.SendAsync("StoreImageFile", data);
+        public ChatHubProxy(NavigationManager nav) : base(nav, "/chatHub")
+        {
+            this.constructed = true;
+        }
+
+        //public Task SendImageFile(ImageFile data) => base.HubConnection.SendAsync("StoreImageFile", data);
+
+        public async Task SendImageFile(ImageFile data)
+        {
+            await base.CallMethodWhenReady("StoreImageFile", data);
+
+
+            // can I talk to the server?
+
+
+
+            //var task = Task.Run(async () => await base.HubConnection.SendAsync("storeImageFile", data)); // lowercase s
+            //task.Wait();
+
+            ////var task = Task.Run(async () => await base.HubConnection.SendAsync("StoreImageFile", data)); // uppercase S
+
+            //return task;
+
+            //var a = this.HubConnection;
+            //var task = base.HubConnection.SendAsync("StoreImageFile", data);
+            //return task;
+        }
+
+        public async Task SendImageFileBytes(byte[] data)
+        {
+            await base.CallMethodWhenReady("StoreFile", data);
+        }
 
         public async Task SendQuestion(MyOverflow.Shared.Question question)
         {

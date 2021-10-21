@@ -3,8 +3,6 @@
 
 @inject NavigationManager NavigationManager
 @inject IChatHubProxy chatHubProxy
-
-
 @* javascript call to click the InputFile component with matching id.
     Note that we use CSS to prevent thr poiner event on the InputFile itself, so it falls through to this DIV.
     Why?  So the click event is triggered by the image, OR the InputFile.  Not by the InputFile, AND THEN by the DIV,
@@ -44,11 +42,13 @@
             {
                 var imageBuffer = new byte[e.Size];
 
+                BlazorMarkdig.Shared.Models.ImageFile imageData = null;
+
                 using (var memStream = await e.ReadAllAsync(MAX))
                 {
                     using (SixLabors.ImageSharp.Image image = SixLabors.ImageSharp.Image.Load(memStream))
                     {
-                        var imageData = new BlazorMarkdig.Shared.Models.ImageFile()
+                        imageData = new BlazorMarkdig.Shared.Models.ImageFile()
                         {
                             FileName = e.Name,
                             Extension = e.Name.Substring(0, e.Name.LastIndexOf('.')),
@@ -57,29 +57,58 @@
                             Width = image.Width,
                             Height = image.Height
                         };
-
-                        try
-                        {
-                            //await this.SendImageFile(imageData);
-                            await this.chatHubProxy.SendImageFile(imageData);
-
-                            var encodedFileName = System.Uri.EscapeUriString(imageData.FileName);
-
-                            //var template = $"\r\n![image](https://localhost:44394/MyOverflow/GetFile/{encodedFileName})";
-                            var template = $"\r\n![image](http://127.0.0.1:10000/devstoreaccount1/images/{encodedFileName})";
-                             
-                            var unescaped = System.Text.RegularExpressions.Regex.Unescape(template);
-
-                            await Parent.PasteTemplate(template, unescaped.Length - 1);
-                        }
-                        catch (Exception ex)
-                        {
-                            var x = ex.Message;
-                            var st = ex.StackTrace;
-                        }
                     }
                 }
+                try
+                {
+                    #region alternative method that also works
+
+                    /*
+                    var uri = this.NavigationManager.ToAbsoluteUri("/helloWorldHub");
+                    var hubConnection = new HubConnectionBuilder().WithUrl(uri).Build();
+                    hubConnection.On<string>("HelloWorld", (msg) =>
+                    {
+                        // Hello World?
+                    });
+
+                    await hubConnection.StartAsync();
+                    */
+
+                    // Is it a case that only the first call is working?  So commenting this one out should prove that.
+                    //await hubConnection.SendAsync("HelloWorld");
+
+                    // NOTES:  3 bytes works!
+                    // but 82k of data does not.  Is there a limitation in place for the size of a transmission with SignalR?
+                    // services.AddSignalR(options => 
+                    //{
+                    //    options.EnableDetailedErrors = true;
+                    //    options.MaximumReceiveMessageSize = 1024 * 1024; // 1 MB
+                    //});
+
+                    /* THIS WORK */
+                    //var bytes = imageData.Serialize();
+                    //await hubConnection.SendAsync("StoreImageFileBytes", bytes);
+
+                    #endregion
+
+                    await this.chatHubProxy.SendImageFile(imageData); // this line doesn't get to its destination hub. NOW: Expanded to 1MB
+
+                    var encodedFileName = System.Uri.EscapeUriString(imageData.FileName);
+
+                    //var template = $"\r\n![image](https://localhost:44394/MyOverflow/GetFile/{encodedFileName})";
+                    var template = $"\r\n![image](http://127.0.0.1:10000/devstoreaccount1/images/{encodedFileName})";
+
+                    var unescaped = System.Text.RegularExpressions.Regex.Unescape(template);
+
+                    await Parent.PasteTemplate(template, unescaped.Length - 1);
+                }
+                catch (Exception ex)
+                {
+                    var x = ex.Message;
+                    var st = ex.StackTrace;
+                }
             });
+
         }
         catch (NotSupportedException ex)
         {
